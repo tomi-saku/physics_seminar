@@ -3,7 +3,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define N 1001
+#define N 1000
+#define N_another 200
 #define e 0.01
 #define e_galaxy 0.1
 
@@ -26,10 +27,12 @@ int main(void)
     double deltaT = 0.0001;
     int Steps = 10000;
     double R = 1;
+    double R_another = 0.5;
     double G = 1;
     double M = 1;
     double M_galaxy = 100;
     double v_virial = sqrt(0.25 * G * M * N / R);
+    double v_virial_another = sqrt(0.25 * G * M * N_another / R);
 
     double X_velocity[N] = {};
     double Y_velocity[N] = {};
@@ -52,24 +55,21 @@ int main(void)
 
     int plumer_r = 0;
 
-    for (int i = 0; i < N - 1; i++)
+    for (int i = 0; i < N; i++)
     {
-        while (true)
-        {
-            double rand_x = ((double)rand() / RAND_MAX);
-            double rand_y = ((double)rand() / RAND_MAX);
-            double rand_z = ((double)rand() / RAND_MAX);
+        double rand_x = 1 - 2 * (double)rand() / RAND_MAX;
+        double rand_y = 1 - 2 * (double)rand() / RAND_MAX;
+        double rand_z = 1 - 2 * (double)rand() / RAND_MAX;
 
-            X_position[i] = 1 - 2 * rand_x;
-            Y_position[i] = 1 - 2 * rand_y;
-            Z_position[i] = 1 - 2 * rand_z;
+        double rand_l = sqrt(rand_x * rand_x + rand_y * rand_y + rand_z * rand_z);
 
-            if (sqrt(X_position[i] * X_position[i] + Y_position[i] * Y_position[i] + Z_position[i] * Z_position[i]) <= R)
-                break;
-        }
-        X_position[N - 1] = X_position_galaxy;
-        Y_position[N - 1] = Y_position_galaxy;
-        Z_position[N - 1] = Z_position_galaxy;
+        rand_x = rand_x / rand_l;
+        rand_y = rand_y / rand_l;
+        rand_z = rand_z / rand_l;
+
+        X_position[i] = R * rand_x;
+        Y_position[i] = R * rand_y;
+        Z_position[i] = R * rand_z;
 
         double rand_vx = 1 - 2 * (double)rand() / RAND_MAX;
         double rand_vy = 1 - 2 * (double)rand() / RAND_MAX;
@@ -85,13 +85,37 @@ int main(void)
         Y_velocity[i] = v_virial * rand_vy;
         Z_velocity[i] = v_virial * rand_vz;
     }
-    X_position[N - 1] = X_position_galaxy;
-    Y_position[N - 1] = Y_position_galaxy;
-    Z_position[N - 1] = Z_position_galaxy;
+    for (int i = N; i < N + N_another; i++)
+    {
 
-    X_velocity[N - 1] = X_velocity_galaxy;
-    Y_velocity[N - 1] = Y_velocity_galaxy;
-    Z_velocity[N - 1] = Z_velocity_galaxy;
+        double rand_x = 1 - 2 * (double)rand() / RAND_MAX;
+        double rand_y = 1 - 2 * (double)rand() / RAND_MAX;
+        double rand_z = 1 - 2 * (double)rand() / RAND_MAX;
+
+        double rand_l = sqrt(rand_x * rand_x + rand_y * rand_y + rand_z * rand_z);
+
+        rand_x = rand_x / rand_l;
+        rand_y = rand_y / rand_l;
+        rand_z = rand_z / rand_l;
+
+        X_position[i] = R_another * rand_x;
+        Y_position[i] = R_another * rand_y;
+        Z_position[i] = R_another * rand_z;
+
+        double rand_vx = 1 - 2 * (double)rand() / RAND_MAX;
+        double rand_vy = 1 - 2 * (double)rand() / RAND_MAX;
+        double rand_vz = 1 - 2 * (double)rand() / RAND_MAX;
+
+        double rand_vl = sqrt(rand_vx * rand_vx + rand_vy * rand_vy + rand_vz * rand_vz);
+
+        rand_vx = rand_vx / rand_vl;
+        rand_vy = rand_vy / rand_vl;
+        rand_vz = rand_vz / rand_vl;
+
+        X_velocity[i] = v_virial_another * rand_vx;
+        Y_velocity[i] = v_virial_another * rand_vy;
+        Z_velocity[i] = v_virial_another * rand_vz;
+    }
 
     FILE *fp = fopen("orbit_1000_collision.txt", "w");
     FILE *fp_2 = fopen("energy_1000_collision.txt", "w");
