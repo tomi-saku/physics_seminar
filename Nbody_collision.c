@@ -47,7 +47,7 @@ int main(void)
     double Y_velocity_galaxy = 0;
     double Z_velocity_galaxy = 0;
 
-    double X_position_galaxy = 2;
+    double X_position_galaxy = 4;
     double Y_position_galaxy = 0;
     double Z_position_galaxy = 0;
 
