@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
+# このコードは動画の書き出し周りの動作を高速化する前のバージョンです
 
 data = np.loadtxt("orbit_1000_collision_1000step.txt")
 
@@ -47,13 +48,13 @@ def update(frame):
   ax.set_zlim([-5,5])
   ax.set_title(f"Frame {frame}")
   for i in range(len(x)):
-        if(i == len(x)-1):
+        if(i > len(x)-201):
            ax.scatter(x[i][frame], y[i][frame], z[i][frame], linewidth=0, marker="." ,s=1000)
         ax.scatter(x[i][frame], y[i][frame], z[i][frame], linewidth=0, marker=".")
 
 ani = animation.FuncAnimation(fig, update, frames=len(x[1]), interval=10)
 
 # mp4ファイルとして保存
-ani.save('orbit_1000_collision_1000step_animation.mp4', writer='ffmpeg', fps=20)
+ani.save('orbit_1000_200_collision_10000step_animation.mp4', writer='ffmpeg', fps=20)
 
 plt.show()

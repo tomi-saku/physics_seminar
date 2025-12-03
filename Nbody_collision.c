@@ -7,6 +7,7 @@
 #define N_another 200
 #define e 0.01
 #define e_galaxy 0.1
+#define N_sum 1200
 
 int count = 0;
 
@@ -34,13 +35,13 @@ int main(void)
     double v_virial = sqrt(0.25 * G * M * N / R);
     double v_virial_another = sqrt(0.25 * G * M * N_another / R);
 
-    double X_velocity[N] = {};
-    double Y_velocity[N] = {};
-    double Z_velocity[N] = {};
+    double X_velocity[N_sum] = {};
+    double Y_velocity[N_sum] = {};
+    double Z_velocity[N_sum] = {};
 
-    double X_position[N] = {};
-    double Y_position[N] = {};
-    double Z_position[N] = {};
+    double X_position[N_sum] = {};
+    double Y_position[N_sum] = {};
+    double Z_position[N_sum] = {};
 
     double X_velocity_galaxy = 0;
     double Y_velocity_galaxy = 0;
@@ -51,10 +52,11 @@ int main(void)
     double Z_position_galaxy = 0;
 
     // ✅ 加速度を保持する配列を追加
-    double ax[N], ay[N], az[N];
+    double ax[N_sum], ay[N_sum], az[N_sum];
 
     int plumer_r = 0;
 
+    // １個目の銀河の初期位置と初期速度を計算
     for (int i = 0; i < N; i++)
     {
         double rand_x = 1 - 2 * (double)rand() / RAND_MAX;
@@ -85,7 +87,8 @@ int main(void)
         Y_velocity[i] = v_virial * rand_vy;
         Z_velocity[i] = v_virial * rand_vz;
     }
-    for (int i = N; i < N + N_another; i++)
+    // ２個目の銀河の初期位置と初期速度を計算
+    for (int i = N; i < N_sum; i++)
     {
 
         double rand_x = 1 - 2 * (double)rand() / RAND_MAX;
@@ -98,9 +101,9 @@ int main(void)
         rand_y = rand_y / rand_l;
         rand_z = rand_z / rand_l;
 
-        X_position[i] = R_another * rand_x;
-        Y_position[i] = R_another * rand_y;
-        Z_position[i] = R_another * rand_z;
+        X_position[i] = R_another * rand_x + X_position_galaxy;
+        Y_position[i] = R_another * rand_y + Y_position_galaxy;
+        Z_position[i] = R_another * rand_z + Z_position_galaxy;
 
         double rand_vx = 1 - 2 * (double)rand() / RAND_MAX;
         double rand_vy = 1 - 2 * (double)rand() / RAND_MAX;
@@ -112,51 +115,27 @@ int main(void)
         rand_vy = rand_vy / rand_vl;
         rand_vz = rand_vz / rand_vl;
 
-        X_velocity[i] = v_virial_another * rand_vx;
-        Y_velocity[i] = v_virial_another * rand_vy;
-        Z_velocity[i] = v_virial_another * rand_vz;
+        X_velocity[i] = v_virial_another * rand_vx + X_velocity_galaxy;
+        Y_velocity[i] = v_virial_another * rand_vy + Y_velocity_galaxy;
+        Z_velocity[i] = v_virial_another * rand_vz + Z_velocity_galaxy;
     }
 
-    FILE *fp = fopen("orbit_1000_collision.txt", "w");
-    FILE *fp_2 = fopen("energy_1000_collision.txt", "w");
+    FILE *fp = fopen("orbit_1000_200_collision.txt", "w");
+    FILE *fp_2 = fopen("energy_1000_200_collision.txt", "w");
 
     // ✅ 初期加速度を計算
-    for (int n = 0; n < N; n++)
+    for (int n = 0; n < N_sum; n++)
     {
         double sumx = 0, sumy = 0, sumz = 0;
-        if (n == N - 1)
+        for (int m = 0; m < N_sum; m++)
         {
-            for (int m = 0; m < N; m++)
-            {
-                if (m == n)
-                    continue;
-                double R = calcR_to_galaxy(X_position[n] - X_position[m], Y_position[n] - Y_position[m], Z_position[n] - Z_position[m]);
-                sumx -= G * M * (X_position[n] - X_position[m]) / (R * R * R);
-                sumy -= G * M * (Y_position[n] - Y_position[m]) / (R * R * R);
-                sumz -= G * M * (Z_position[n] - Z_position[m]) / (R * R * R);
-            }
-        }
-        else
-        {
-            for (int m = 0; m < N; m++)
-            {
-                if (m == n)
-                    continue;
-                if (m == N - 1)
-                {
-                    double R = calcR_to_galaxy(X_position[n] - X_position[m], Y_position[n] - Y_position[m], Z_position[n] - Z_position[m]);
-                    sumx -= G * M_galaxy * (X_position[n] - X_position[m]) / (R * R * R);
-                    sumy -= G * M_galaxy * (Y_position[n] - Y_position[m]) / (R * R * R);
-                    sumz -= G * M_galaxy * (Z_position[n] - Z_position[m]) / (R * R * R);
-                }
-                else
-                {
-                    double R = calcR(X_position[n] - X_position[m], Y_position[n] - Y_position[m], Z_position[n] - Z_position[m]);
-                    sumx -= G * M * (X_position[n] - X_position[m]) / (R * R * R);
-                    sumy -= G * M * (Y_position[n] - Y_position[m]) / (R * R * R);
-                    sumz -= G * M * (Z_position[n] - Z_position[m]) / (R * R * R);
-                }
-            }
+            if (m == n)
+                continue;
+
+            double R = calcR(X_position[n] - X_position[m], Y_position[n] - Y_position[m], Z_position[n] - Z_position[m]);
+            sumx -= G * M * (X_position[n] - X_position[m]) / (R * R * R);
+            sumy -= G * M * (Y_position[n] - Y_position[m]) / (R * R * R);
+            sumz -= G * M * (Z_position[n] - Z_position[m]) / (R * R * R);
         }
 
         ax[n] = sumx;
@@ -167,7 +146,7 @@ int main(void)
     for (int i = 0; i < Steps; i++)
     {
         // ✅ Leapfrog: 速度を半ステップ更新
-        for (int n = 0; n < N; n++)
+        for (int n = 0; n < N_sum; n++)
         {
             X_velocity[n] += 0.5 * ax[n] * deltaT;
             Y_velocity[n] += 0.5 * ay[n] * deltaT;
@@ -175,7 +154,7 @@ int main(void)
         }
 
         // ✅ 位置をフルステップ更新
-        for (int n = 0; n < N; n++)
+        for (int n = 0; n < N_sum; n++)
         {
             X_position[n] += X_velocity[n] * deltaT;
             Y_position[n] += Y_velocity[n] * deltaT;
@@ -183,42 +162,18 @@ int main(void)
         }
 
         // ✅ 新しい加速度を再計算
-        for (int n = 0; n < N; n++)
+        for (int n = 0; n < N_sum; n++)
         {
             double sumx = 0, sumy = 0, sumz = 0;
-            if (n == N - 1)
+            for (int m = 0; m < N_sum; m++)
             {
-                for (int m = 0; m < N; m++)
-                {
-                    if (m == n)
-                        continue;
-                    double R = calcR_to_galaxy(X_position[n] - X_position[m], Y_position[n] - Y_position[m], Z_position[n] - Z_position[m]);
-                    sumx -= G * M * (X_position[n] - X_position[m]) / (R * R * R);
-                    sumy -= G * M * (Y_position[n] - Y_position[m]) / (R * R * R);
-                    sumz -= G * M * (Z_position[n] - Z_position[m]) / (R * R * R);
-                }
-            }
-            else
-            {
-                for (int m = 0; m < N; m++)
-                {
-                    if (m == n)
-                        continue;
-                    if (m == N - 1)
-                    {
-                        double R = calcR_to_galaxy(X_position[n] - X_position[m], Y_position[n] - Y_position[m], Z_position[n] - Z_position[m]);
-                        sumx -= G * M_galaxy * (X_position[n] - X_position[m]) / (R * R * R);
-                        sumy -= G * M_galaxy * (Y_position[n] - Y_position[m]) / (R * R * R);
-                        sumz -= G * M_galaxy * (Z_position[n] - Z_position[m]) / (R * R * R);
-                    }
-                    else
-                    {
-                        double R = calcR(X_position[n] - X_position[m], Y_position[n] - Y_position[m], Z_position[n] - Z_position[m]);
-                        sumx -= G * M * (X_position[n] - X_position[m]) / (R * R * R);
-                        sumy -= G * M * (Y_position[n] - Y_position[m]) / (R * R * R);
-                        sumz -= G * M * (Z_position[n] - Z_position[m]) / (R * R * R);
-                    }
-                }
+                if (m == n)
+                    continue;
+
+                double R = calcR(X_position[n] - X_position[m], Y_position[n] - Y_position[m], Z_position[n] - Z_position[m]);
+                sumx -= G * M * (X_position[n] - X_position[m]) / (R * R * R);
+                sumy -= G * M * (Y_position[n] - Y_position[m]) / (R * R * R);
+                sumz -= G * M * (Z_position[n] - Z_position[m]) / (R * R * R);
             }
             ax[n] = sumx;
             ay[n] = sumy;
@@ -226,7 +181,7 @@ int main(void)
         }
 
         // ✅ 速度をもう半ステップ更新
-        for (int n = 0; n < N; n++)
+        for (int n = 0; n < N_sum; n++)
         {
             X_velocity[n] += 0.5 * ax[n] * deltaT;
             Y_velocity[n] += 0.5 * ay[n] * deltaT;
@@ -234,7 +189,7 @@ int main(void)
         }
 
         // ファイル出力
-        for (int j = 0; j < N; j++)
+        for (int j = 0; j < N_sum; j++)
         {
             fprintf(fp, "%f %f %f ", X_position[j], Y_position[j], Z_position[j]);
         }
@@ -243,28 +198,14 @@ int main(void)
         double kinetic_energy = 0;
         double potential_energy = 0;
 
-        for (int j = 0; j < N; j++)
+        for (int j = 0; j < N_sum; j++)
         {
-            if (j == N - 1)
+            kinetic_energy += M * (X_velocity[j] * X_velocity[j] + Y_velocity[j] * Y_velocity[j] + Z_velocity[j] * Z_velocity[j]) / 2;
+
+            for (int k = j + 1; k < N_sum; k++)
             {
-                kinetic_energy += M_galaxy * (X_velocity[j] * X_velocity[j] + Y_velocity[j] * Y_velocity[j] + Z_velocity[j] * Z_velocity[j]) / 2;
-            }
-            else
-            {
-                kinetic_energy += M * (X_velocity[j] * X_velocity[j] + Y_velocity[j] * Y_velocity[j] + Z_velocity[j] * Z_velocity[j]) / 2;
-            }
-            for (int k = j + 1; k < N; k++)
-            {
-                if (k == N - 1)
-                {
-                    double R = calcR_to_galaxy(X_position[j] - X_position[k], Y_position[j] - Y_position[k], Z_position[j] - Z_position[k]);
-                    potential_energy += -G * M * M_galaxy / R;
-                }
-                else
-                {
-                    double R = calcR(X_position[j] - X_position[k], Y_position[j] - Y_position[k], Z_position[j] - Z_position[k]);
-                    potential_energy += -G * M * M / R;
-                }
+                double R = calcR(X_position[j] - X_position[k], Y_position[j] - Y_position[k], Z_position[j] - Z_position[k]);
+                potential_energy += -G * M * M / R;
             }
         }
 

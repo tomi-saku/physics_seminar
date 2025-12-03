@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
-data = np.loadtxt("orbit_1000_collision.txt")
+data = np.loadtxt("orbit_1000_200_collision.txt")
 
 num_frames = data.shape[0]
 num_cols   = data.shape[1]
@@ -32,10 +32,9 @@ ax.set_zlim([-5,5])
 
 # unique size (最後の粒子を大きくしたい場合)
 sizes = np.full(num_particles, 20)
-sizes[-1] = 1000
 
 colors = np.full(num_particles, 'b')
-colors[-1] = 'r'
+colors[-200:] = 'r'
 
 # 初期位置をプロット
 sc = ax.scatter(points[:,0,0], points[:,0,1], points[:,0,2],
@@ -50,6 +49,6 @@ def update(frame):
 
 ani = animation.FuncAnimation(fig, update, frames=range(0, num_frames, 10), interval=10)
 
-ani.save('orbit_1000_collision_animation.mp4', writer='ffmpeg', fps=20)
+ani.save('orbit_1000_200_collision_animation.mp4', writer='ffmpeg', fps=20)
 
 plt.show()
