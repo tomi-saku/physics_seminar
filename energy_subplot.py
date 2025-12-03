@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 fig, ax = plt.subplots()
 
-data = np.loadtxt("energy_1000_leapfrog_cold.txt")
+data = np.loadtxt("energy_1000_200_collision.txt")
 
 time = data[:,0]
 kinetic_energy = data[:,1]
@@ -17,7 +17,7 @@ l1,l2,l3= "K","V","2K+V"  # 各ラベル
 
 ax.set_xlabel('time')  # x軸ラベル
 ax.set_ylabel('Energy')  # y軸ラベル
-ax.set_title("Kinetic and Potential energy(cold)") # グラフタイトル
+ax.set_title("Kinetic and Potential energy") # グラフタイトル
 # ax.set_aspect('equal') # スケールを揃える
 ax.grid()            # 罫線
 ax.set_xlim([0, (time[1]-time[0])*len(time)]) # x方向の描画範囲を指定
@@ -32,5 +32,5 @@ plt.axvline(x=0.035,color='r', ls='--')
 
 ax.legend(loc=0)    # 凡例
 fig.tight_layout()  # レイアウトの設定
-plt.savefig('energy_1000_subplot_cold_virial.png') # 画像の保存
+plt.savefig('energy_1000_200_collision_subplot.png') # 画像の保存
 plt.show()
