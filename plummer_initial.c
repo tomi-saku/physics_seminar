@@ -6,7 +6,7 @@
 
 #define N 1000
 
-double r;
+double r_norm, r;
 double R = 1;
 
 double g(double q)
@@ -31,7 +31,8 @@ int main(void)
     double rand_xy = ((double)rand() / RAND_MAX);
     double rand_z = ((double)rand() / RAND_MAX);
 
-    r = pow(pow(rand_r, -(double)2 / (double)3) - 1, -(double)1 / (double)2) * R;
+    r_norm = pow(pow(rand_r, -(double)2 / (double)3) - 1, -(double)1 / (double)2);
+    r = r_norm * R;
 
     Z_position[i] = (1 - 2 * rand_z) * r;
     X_position[i] = sqrt(r * r - Z_position[i] * Z_position[i]) * cos(2 * M_PI * rand_xy);
